@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sobaku Automatic Uploader Pro</title>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --accent-color: #3b82f6;
+      --accent-hover: #2563eb;
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
+      --border-color: #334155;
+      --success-color: #10b981;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      margin: 0;
+      padding: 24px;
+      display: flex;
+      justify-content: center;
+      position: relative;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 880px;
+      background: var(--card-bg);
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      padding: 28px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+      position: relative;
+      z-index: 1;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .sobaku-logo {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 2px solid var(--border-color);
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      object-fit: cover;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      margin: 0;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ffffff, #60a5fa);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header .sub-title {
+      font-size: 11px;
+      color: var(--text-sub);
+      margin: 0;
+    }
+
+    .badge-pro {
+      background: rgba(59, 130, 246, 0.2);
+      color: #60a5fa;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .tab-nav {
+      display: flex;
+      gap: 8px;
+      background: #0f172a;
+      padding: 6px;
+      border-radius: 10px;
+      margin-bottom: 24px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px 16px;
+      border: none;
+      background: transparent;
+      color: var(--text-sub);
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 14px;
+    }
+
+    .tab-btn.active {
+      background: var(--card-bg);
+      color: var(--text-main);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .drop-zone {
+      border: 2px dashed var(--border-color);
+      border-radius: 12px;
+      padding: 30px;
+      text-align: center;
+      background: rgba(15, 23, 42, 0.4);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-bottom: 20px;
+    }
+
+    .drop-zone:hover {
+      border-color: var(--accent-color);
+      background: rgba(59, 130, 246, 0.05);
+    }
+
+    .file-info {
+      margin-top: 8px;
+      font-weight: 600;
+      color: var(--success-color);
+      word-break: break-all;
+    }
+
+    .form-group { margin-bottom: 16px; }
+    label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 13px; color: var(--text-sub); }
+
+    input[type="text"], input[type="datetime-local"], textarea {
+      width: 100%;
+      padding: 10px 14px;
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-main);
+      font-size: 14px;
+      outline: none;
+    }
+
+    input:focus, textarea:focus { border-color: var(--accent-color); }
+
+    .checkbox-group {
+      display: flex;
+      gap: 16px;
+      background: #0f172a;
+      padding: 14px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border-color);
+    }
+
+    .checkbox-group label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      cursor: pointer;
+      color: var(--text-main);
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 12px;
+      background: var(--accent-color);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-primary:hover { background: var(--accent-hover); }
+
+    .progress-wrapper { margin-top: 20px; display: none; }
+    .progress-bar-bg {
+      width: 100%;
+      height: 12px;
+      background: #0f172a;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    .progress-bar-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #3b82f6, #10b981);
+      transition: width 0.2s ease;
+    }
+
+    .progress-text { font-size: 12px; color: var(--text-sub); margin-top: 6px; text-align: right; }
+
+    .status-box {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 8px;
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      font-size: 13px;
+      color: var(--text-sub);
+      white-space: pre-line;
+    }
+
+    .card-box {
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      padding: 16px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+    }
+
+    .card-box h3 { margin: 0 0 12px 0; font-size: 15px; color: #60a5fa; }
+
+    .staff-banner-container {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .staff-banner {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      filter: drop-shadow(0px 4px 10px rgba(0,0,0,0.5));
+    }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { padding: 10px; text-align: left; border-bottom: 1px solid var(--border-color); font-size: 13px; }
+    th { color: var(--text-sub); font-weight: 600; }
+
+    .mascot-container {
+      position: fixed;
+      bottom: 15px;
+      right: 25px;
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      z-index: 99;
+      pointer-events: none;
+    }
+
+    .speech-bubble {
+      background: #1e293b;
+      border: 1px solid var(--accent-color);
+      color: #f8fafc;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 12px;
+      max-width: 180px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+      position: relative;
+      margin-bottom: 70px;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .speech-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      right: 20px;
+      border-width: 8px 8px 0;
+      border-style: solid;
+      border-color: #1e293b transparent;
+      display: block;
+      width: 0;
+    }
+
+    .mascot-img {
+      width: 130px;
+      height: auto;
+      filter: drop-shadow(0px 8px 12px rgba(0,0,0,0.6));
+      animation: float 3s ease-in-out infinite;
+      transition: all 0.3s ease;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <div class="header">
+      <div class="logo-container">
+        <!-- Logo SOBAKU -->
+        <img src="LOGO_IG_A10.jpg" alt="SOBAKU Logo" class="sobaku-logo">
+        <div>
+          <h1>Sobaku Automatic Uploader</h1>
+          <p class="sub-title">Official Internal Tool by SOBAKU Studio</p>
+        </div>
+      </div>
+      <span class="badge-pro">PRO v2.0</span>
+    </div>
+
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab('upload-tab')">📤 Upload Konten</button>
+      <button class="tab-btn" onclick="switchTab('config-tab')">⚙️ Pengaturan API</button>
+      <button class="tab-btn" onclick="switchTab('history-tab')">📜 Riwayat Upload</button>
+    </div>
+
+    <!-- TAB 1: UPLOAD -->
+    <div id="upload-tab" class="tab-content active">
+      <div class="drop-zone" id="drop-zone">
+        <div style="font-size: 32px; margin-bottom: 8px;">🎬</div>
+        <span style="color: var(--text-sub);">Klik di sini untuk memilih file video musik</span>
+        <div class="file-info" id="file-info"></div>
+      </div>
+
+      <div class="form-group">
+        <label>Judul Video</label>
+        <input type="text" id="title" placeholder="Masukkan judul lagu / video...">
+      </div>
+
+      <div class="form-group">
+        <label>Deskripsi</label>
+        <textarea id="description" rows="3" placeholder="Deskripsi lengkap video..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Hashtag</label>
+        <input type="text" id="hashtags" placeholder="#music #newsong #shorts">
+      </div>
+
+      <div class="form-group">
+        <label>⏰ Penjadwalan Otomatis (Opsional)</label>
+        <input type="datetime-local" id="schedule-time">
+      </div>
+
+      <div class="checkbox-group">
+        <label><input type="checkbox" id="yt" checked> YouTube</label>
+        <label><input type="checkbox" id="ig"> Instagram Reels</label>
+        <label><input type="checkbox" id="tt"> TikTok</label>
+      </div>
+
+      <button id="upload-btn" class="btn-primary">Mulai Proses Unggahan</button>
+
+      <div class="progress-wrapper" id="progress-box">
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progress-bar"></div>
+        </div>
+        <div class="progress-text" id="progress-text">0%</div>
+      </div>
+
+      <div class="status-box" id="status">Status: Siap digunakan.</div>
+    </div>
+
+    <!-- TAB 2: CONFIG -->
+    <div id="config-tab" class="tab-content">
+      <div class="card-box">
+        <h3>🔴 YouTube Data API v3</h3>
+        <div class="form-group"><label>Client ID</label><input type="text" id="api-yt-client-id"></div>
+        <div class="form-group"><label>Client Secret</label><input type="text" id="api-yt-client-secret"></div>
+        <button id="login-yt-btn" style="background: #ef4444; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: 600;">Login / Connect YouTube</button>
+      </div>
+
+      <div class="card-box">
+        <h3>📸 Meta Graph API (Instagram Reels)</h3>
+        <div class="form-group"><label>Access Token</label><input type="text" id="api-ig-access-token"></div>
+        <div class="form-group"><label>Instagram Account ID</label><input type="text" id="api-ig-account-id"></div>
+      </div>
+
+      <div class="card-box">
+        <h3>🎵 TikTok Content Posting API</h3>
+        <div class="form-group"><label>Access Token</label><input type="text" id="api-tt-access-token"></div>
+      </div>
+
+      <button id="save-config-btn" class="btn-primary">Simpan Kredensial API</button>
+    </div>
+
+    <!-- TAB 3: HISTORY -->
+    <div id="history-tab" class="tab-content">
+      <!-- Banner Seluruh Tim Staff SOBAKU -->
+      <div class="staff-banner-container">
+        <img src="BHIBI_SOBAKU.png" alt="Sobaku Staff Team" class="staff-banner">
+      </div>
+
+      <div class="card-box">
+        <h3>Riwayat Unggahan Terakhir</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Waktu</th>
+              <th>Nama File</th>
+              <th>Judul</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="history-table-body">
+            <tr><td colspan="4" style="text-align: center; color: var(--text-sub);">Belum ada riwayat.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FLOATING MASCOT STAFF -->
+  <div class="mascot-container">
+    <div class="speech-bubble" id="mascot-bubble">
+      Siap bantu upload video karya kamu hari ini! ✨
+    </div>
+    <!-- Maskot Utama Staff Dinamis -->
+    <img src="IMG_4225_1.png" alt="Staff Mascot" class="mascot-img" id="mascot-img">
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
